@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %} Home page {% endblock title %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="col">
+        <h1>This the home page</h1>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4 mx-auto col-10">
+        <form class="form" method="POST" action="/createtweet">
+            {% csrf_token %}
+            <input type="hidden" value="/" name="next" />
+            <textarea class="form-control" name="content" placeholder="tweet here..."></textarea>
+            <button class="btn btn-primary" type="submit">Tweet</button>
+
+        </form>
+    </div>
+</div>
+
+<div id="tweets">loading...</div>
+
+<script>
+const tweetEl = document.getElementById("tweets")
+
+function load_tweet(tweetElement){
+    const xmr = new XMLHttpRequest()
+    const method = 'GET'
+    const url = '/tweets'
+    const responseType = 'json'
+    xmr.responseType = responseType
+    xmr.open(method, url)
+    xmr.onload = function() {
+        const serverResponse = xmr.response
+        const listedItems = serverResponse.response
+        var final_tweet_string = ''
+        for (var i = 0; i < listedItems.length; i++){
+            var loop_tweet_string = tweetProperty(listedItems[i])
+            final_tweet_string += loop_tweet_string
+        }
+        tweetElement.innerHTML = final_tweet_string
+    }
+    xmr.send()
+}
+load_tweet(tweetEl)
+
+function tweetProperty (tweet){
+    var formattedTweet = "<div class='mb-4 col-12 border py-3' id='tweet-"+ tweet.id +"'><p>" 
+    + tweet.content + "</p><div class='btn-group'>" + likeBtn(tweet) + "</div></div>"
+    return formattedTweet
+}
+
+function handleLike (tweet_id, tweet_count){
+    console.log(tweet_id, tweet_count)
+}
+
+function likeBtn(tweet){
+    return "<button class='btn btn-primary' onclick=handleLike(" + tweet.id + "," + tweet.counts + ") btn-sm>Like</button>"
+}
+
+</script>
+{% endblock content %}
